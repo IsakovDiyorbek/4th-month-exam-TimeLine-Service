@@ -108,3 +108,4 @@ func (c *CustomEventsRepo) GetByIdCustomEvent(ctx context.Context, req *pb.GetBy
 	}
 	return &pb.GetByIdEvetsResponse{Event: &customEvent}, nil
 }
+			

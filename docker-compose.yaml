@@ -1,0 +1,56 @@
+version: '3.9'
+
+services: 
+  migrate:
+    image: migrate/migrate
+    networks:
+      - GLhost
+    volumes:
+      - ./migrations:/migrations
+    command: [ "-path", "/migrations", "-database",  
+                "postgres://postgres:20005@timeline:5432/timeline_exam?sslmode=disable", 
+                "up" ]
+    depends_on:
+      - postgres-db3    
+
+  postgres-db3:
+    container_name: timeline #post
+    image: postgres:latest
+    environment:
+      PGUSER: postgres
+      POSTGRES_PASSWORD: 20005
+      PGDATA: /data/postgres
+      POSTGRES_DB: timeline_exam 
+    volumes:
+      - db:/event-database/event-memory
+    ports:
+      - "8888:8888"
+    networks:
+      - GLhost
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5   
+
+  event_service:
+    container_name: event_service
+    build: .
+    depends_on:
+      - postgres-db3
+    
+      
+    ports:
+      - "50052:50052"
+    networks:
+      - GLhost
+
+networks:
+  GLhost:
+    external: true
+    name: timecapsule
+    # driver: bridge      
+
+volumes:
+  db: 

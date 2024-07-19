@@ -2,8 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -46,97 +44,92 @@ func (s *TimelineRepo) AddTimeLine(ctx context.Context, req *pb.AddTimeLineReque
 
 	return &pb.AddTimeLineResponse{}, nil
 }
-
 func (s *TimelineRepo) GetEvent(ctx context.Context, req *pb.GetUserEventsRequest) (*pb.GetUserEventsResponse, error) {
-	filter := bson.D{}
-	opts := options.Find()
+	var (
+		limit  int
+		offset int
+		err    error
+	)
 
-	if req.Limit != "" {
-		limit, err := strconv.ParseInt(req.Limit, 10, 64)
+	if req.GetLimit() != "" {
+		limit, err = strconv.Atoi(req.GetLimit())
 		if err != nil {
 			return nil, err
 		}
-		opts.SetLimit(limit)
+	} else {
+		limit = 0
 	}
-	if req.Ofset != "" {
-		offset, err := strconv.ParseInt(req.Ofset, 10, 64)
+
+	if req.GetOfset() != "" {
+		offset, err = strconv.Atoi(req.GetOfset())
 		if err != nil {
 			return nil, err
 		}
-		opts.SetSkip(offset)
-	}
-	if req.Date != "" {
-		date, err := time.Parse("2006-01-02", req.Date)
-		if err != nil {
-			return nil, fmt.Errorf("invalid date format: %v", err)
-		}
-		filter = append(filter, bson.E{"date", date})
+	} else {
+		offset = 0
 	}
 
-	cursor, err := s.mongo.Find(ctx, filter, opts)
+	filter := bson.M{}
+	if req.GetDate() != "" {
+		date, err := time.Parse("2006-01-02", req.GetDate())
+		if err != nil {
+			return nil, err
+		}
+		filter["date"] = bson.M{"$gte": date}
+	}
+
+	findOptions := options.Find()
+	if limit > 0 {
+		findOptions.SetLimit(int64(limit))
+	}
+	findOptions.SetSkip(int64(offset))
+
+	cursor, err := s.mongo.Find(ctx, filter, findOptions)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
 	var events []*pb.Events
 	for cursor.Next(ctx) {
 		var event pb.Events
-		err := cursor.Decode(&event)
-		if err != nil {
+		if err := cursor.Decode(&event); err != nil {
 			return nil, err
 		}
 		events = append(events, &event)
-	}
-
-	if err := cursor.Err(); err != nil {
-		return nil, err
 	}
 
 	return &pb.GetUserEventsResponse{Events: events}, nil
 }
-
 func (s *TimelineRepo) SearchTimeLine(ctx context.Context, req *pb.SearchTimeLineRequest) (*pb.SearchTimeLineResponse, error) {
-	filter := bson.D{}
-	opts := options.Find()
-
-	var startDate, endDate time.Time
-	var err error
-	if req.StartDate != "" {
-		startDate, err = time.Parse("2006-01-02", req.StartDate)
-		if err != nil {
-			return nil, fmt.Errorf("invalid start_date format: %v", err)
-		}
-		filter = append(filter, bson.E{"date", bson.D{{"$gte", startDate}}})
-	}
-	if req.EndDate != "" {
-		endDate, err = time.Parse("2006-01-02", req.EndDate)
-		if err != nil {	
-			return nil, fmt.Errorf("invalid end_date format: %v", err)
-		}
-		filter = append(filter, bson.E{"date", bson.D{{"$lte", endDate}}})
-	}
-	
-	cursor, err := s.mongo.Find(ctx, filter, opts)
+	startDate, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
-		log.Printf("Error while searching timeline: %v\n", err)
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+
+	endDate, err := time.Parse("2006-01-02", req.GetEndDate())
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{
+		"date": bson.M{
+			"$gte": startDate,
+			"$lte": endDate,		
+		},
+	}
+
+	cursor, err := s.mongo.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
 
 	var events []*pb.Events
 	for cursor.Next(ctx) {
 		var event pb.Events
-		err := cursor.Decode(&event)
-		if err != nil {
-			log.Printf("Error while decoding event: %v\n", err)
+		if err := cursor.Decode(&event); err != nil {
 			return nil, err
 		}
-		events = append(events, &event)
-	}
-
-	if err := cursor.Err(); err != nil {
-		return nil, err
+		events = append(events, &event)	
 	}
 
 	return &pb.SearchTimeLineResponse{Event: events}, nil

@@ -1,4 +1,4 @@
-CREATE TABLE custom_events (        -- пользовательские события
+CREATE TABLE custom_events (
     id UUID PRIMARY KEY,
     user_id UUID not NULL,
     title VARCHAR(255) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE custom_events (        -- пользовательские собы
 );
 
 
-CREATE TABLE milestones (   -- этап
+CREATE TABLE milestones (
     id UUID PRIMARY KEY,
     user_id UUID not NULL,
     title VARCHAR(255) NOT NULL,
@@ -22,33 +22,3 @@ CREATE TABLE milestones (   -- этап
     deleted_at bigint default 0
 );
 
-
-
-
-HistoricalEvents kolleksiyasi:
-{
-  "_id": ObjectId(),
-  "title": String,
-  "date": Date,
-  "category": String,
-  "description": String,
-  "source_url": String,
-  "created_at": Date
-}
-
-
-UserTimeline kolleksiyasi:
-{
-  "_id": ObjectId(),
-  "user_id": UUID,
-  "events": [                                           --voqealar
-    {
-      "id": String,
-      "type": String,
-      "title": String,
-      "date": Date,
-      "preview": String                ---oldindan ko'rish
-    }
-  ],
-  "last_updated": Date
-}
