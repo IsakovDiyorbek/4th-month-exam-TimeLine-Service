@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package timecapsule;
+
+option go_package = "genproto/";
+
+
+service TimeLineService{
+    rpc AddTimeLine(AddTimeLineRequest) returns (AddTimeLineResponse);
+    rpc GetEvent(GetUserEventsRequest) returns (GetUserEventsResponse);   
+    rpc SearchTimeLine(SearchTimeLineRequest) returns (SearchTimeLineResponse);
+    rpc DeleteTimeLine(DeleteTimeLineRequest) returns (DeleteTimeLineResponse);
+}
+
+
+message Events{
+    string id = 1;
+    string type = 2;
+    string title = 3;
+    string date = 4;
+    string preview = 5;  
+}
+
+message TimeLine{
+    string id = 1;
+    string  user_id = 2;
+    repeated Events events = 3;
+    string last_updated = 4;
+}
+
+
+
+message GetUserEventsRequest{
+    string limit = 1;
+    string ofset = 2;
+    string date = 3;
+}
+
+message GetUserEventsResponse{
+    repeated Events events = 1;
+}
+
+
+message AddTimeLineRequest{
+    string id = 1;
+    string  user_id = 2;
+    Events events = 3;
+    string last_updated = 4;
+}
+
+message AddTimeLineResponse{}
+
+
+
+message SearchTimeLineRequest{
+    string start_date = 1;
+    string end_date = 2; 
+}
+
+message SearchTimeLineResponse{
+    repeated Events event = 1; 
+}
+
+
+message DeleteTimeLineRequest{
+    string id = 1;
+}
+
+message DeleteTimeLineResponse{}
+
+
+

@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package timecapsule;
+
+option go_package = "genproto/";
+
+
+service HistoricalService{
+    rpc GetAllHistoricalEvents(GetAllHistoricalRequest) returns (GetAllHistoricalResponse);
+    rpc AddHistoricalEvent(AddHistoricalEventRequest) returns (AddHistoricalEventResponse);
+    rpc DeleteHistoricalEvent(DeleteHistoricalEventRequest) returns (DeleteHistoricalEventResponse);
+
+}
+
+message HistoricalEvents{
+    string id = 1;
+    string title = 2;
+    string date = 3;
+    string category = 4;
+    string description = 5;
+    string source_url = 6;
+    string time = 7;
+}
+
+
+message GetAllHistoricalRequest{
+    string limit = 1;
+    string ofset = 2;
+    string date = 3;
+}
+
+message GetAllHistoricalResponse{
+    repeated HistoricalEvents event = 1;
+}
+
+message AddHistoricalEventRequest{
+    string id = 1;
+    string title = 2;
+    string date = 3;
+    string category = 4;
+    string description = 5;
+    string source_url = 6;
+    string time = 7;
+}
+
+message AddHistoricalEventResponse{}
+
+
+
+message DeleteHistoricalEventRequest{
+    string id = 1;
+}
+
+
+message DeleteHistoricalEventResponse{}
+
+

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package timecapsule;
+
+option go_package = "genproto/";
+
+
+
+service MilestoneService{
+    rpc AddMilestone(AddMilestonesRequest) returns (AddMilestonesResponse);
+    rpc GetAllMilestone(GetAllMilestonesRequest) returns (GetAllMilestonesResponse);
+    rpc UpdateMilestone(UpdateMilestonesRequest) returns(UpdateMilestonesResponse);
+    rpc DeleteMilestone(DeleteMilestonesRequest) returns (DeleteMilestonesResponse);
+    
+}
+
+message Milestones{
+    string id = 1;
+    string user_id = 2;
+    string title = 3;
+    string date = 4;
+    string category = 5;
+    string created_at = 6;
+    string updated_at = 7; 
+}
+
+message AddMilestonesRequest{
+    string id = 1;
+    string user_id = 2;
+    string title = 3;
+    string date = 4;
+    string category = 5;
+}
+
+
+message AddMilestonesResponse{}
+
+
+message GetAllMilestonesRequest{
+    string date = 1;
+    string title = 2;
+    string category = 3;
+    string user_id = 4;
+}
+
+
+message GetAllMilestonesResponse{
+    repeated Milestones milestone = 1;
+}
+
+
+message UpdateMilestonesRequest{
+    string id = 1;
+    string title = 2;
+    string date = 3;
+}
+
+message UpdateMilestonesResponse{}
+
+
+message DeleteMilestonesRequest{
+    string id = 1;
+}
+
+message DeleteMilestonesResponse{}

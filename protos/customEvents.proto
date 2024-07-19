@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package timecapsule;
+
+option go_package = "genproto/";
+
+
+service CustomEventsService{
+    rpc AddCustomEvent(AddCustomEventRequest) returns (AddCustomEventResponse);
+    rpc UpdateCustomEvent(UpdateCustomEventsRequest) returns (UpdateCustomEventsResponse);
+    rpc DeleteCustomEvent(DeleteCustomEventsRequest) returns (DeleteCustomEventsResponse);
+    rpc GetAllCustomEvents(GetAllEventsRequest) returns (GetAllEventsResponse);
+    rpc GetByIdCustomEvent(GetByIdEvetsRequest) returns (GetByIdEvetsResponse);
+}
+
+message CustomEvents{
+    string id = 1;
+    string user_id = 2;
+    string title = 3;
+    string description = 4;
+    string date = 5;
+    string category = 6;
+    string created_at = 7;
+
+}
+
+message AddCustomEventRequest{
+    string id = 1;
+    string user_id = 2;
+    string title = 3;
+    string description = 4;
+    string date = 5;
+    string category = 6;
+}
+
+message AddCustomEventResponse{
+    string message = 1;
+}
+
+message UpdateCustomEventsRequest{
+    string event_id = 1;
+    string title = 2;
+    string description = 3;
+}
+
+message UpdateCustomEventsResponse{}
+
+
+
+message DeleteCustomEventsRequest{
+    string event_id = 1;
+}
+
+message DeleteCustomEventsResponse{
+    string message = 1;
+}
+
+
+message GetAllEventsRequest{
+    string user_id = 1;
+    string date = 2;
+    string title = 3;
+}
+
+message GetAllEventsResponse{
+    repeated CustomEvents event = 1;
+}
+
+
+
+message GetByIdEvetsRequest{
+    string id = 1;
+}
+
+
+message GetByIdEvetsResponse{
+    CustomEvents event = 1;
+}
